@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة قياسات الملاعب المصغرة</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Cairo) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        /* Styles for 3D effect */
+        .perspective-container {
+            perspective: 1200px;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .is-3d {
+            transform: rotateX(45deg) scale(0.9);
+            transition: transform 0.5s ease-out;
+            box-shadow: 0 50px 30px -20px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-3xl mx-auto">
+        <!-- Header -->
+        <header class="text-center text-gray-400 mb-6 space-y-1">
+            <p>المديرية العامة للتربية والتعليم بمحافظة مسقط</p>
+            <p>دائرة الإشراف التربوي</p>
+            <p>قسم الإشراف الفني</p>
+            <p class="font-bold">الرياضة المدرسية</p>
+        </header>
+        <!-- Main Card -->
+        <main class="bg-slate-800/50 backdrop-blur p-6 sm:p-8 rounded-2xl shadow-2xl border border-slate-700">
+            <!-- Title -->
+            <h1 class="text-3xl sm:text-4xl font-bold text-center text-white mb-8">حاسبة قياسات الملاعب المصغرة</h1>
+            <!-- Form Elements -->
+            <div class="mb-4">
+                <label for="courtType" class="block mb-2 text-lg font-medium text-gray-300">اختر نوع الملعب:</label>
+                <select id="courtType" class="bg-slate-700 border border-slate-600 text-white text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                    <option value="football" selected>كرة القدم</option>
+                    <option value="handball">كرة اليد</option>
+                    <option value="volleyball">الكرة الطائرة</option>
+                    <option value="basketball">كرة السلة</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label id="inputLabel" for="courtWidth" class="block mb-2 text-lg font-medium text-gray-300">أدخل عرض الملعب (بالمتر):</label>
+                <div class="flex gap-2">
+                    <input type="number" id="courtWidth" class="bg-slate-700 border border-slate-600 text-white text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3" placeholder="مثال: 15" min="1" step="0.01">
+                    <select id="unitSelect" class="bg-slate-700 border border-slate-600 text-white text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3 w-32">
+                        <option value="m" selected>متر</option>
+                        <option value="ft">قدم</option>
+                        <option value="yd">ياردة</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Optional decimals selection -->
+            <div class="mb-4">
+                <label for="decimals" class="block mb-2 text-lg font-medium text-gray-300">عدد المنازل العشرية:</label>
+                <select id="decimals" class="bg-slate-700 border border-slate-600 text-white text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                    <option value="0">0</option>
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                </select>
+            </div>
+            <!-- Calculate Button -->
+            <button id="calculateBtn" class="w-full bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-bold rounded-lg text-lg px-5 py-3 text-center transition-colors duration-300 ease-in-out shadow-lg">احسب القياسات</button>
+            <!-- Error Message -->
+            <div id="error" class="mt-4 text-center text-red-400 font-semibold hidden">الرجاء إدخال قيمة عرض صالحة.</div>
+            <!-- Results -->
+            <section id="results" class="mt-8 hidden">
+                <h2 id="resultTitle" class="text-2xl font-bold text-white mb-4 border-b-2 border-slate-600 pb-2"></h2>
+                <div id="resultDetails" class="space-y-3 text-lg bg-slate-900/70 p-5 rounded-lg"></div>
+            </section>
+            <!-- Diagram Section -->
+            <section id="diagram" class="mt-6 hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-bold text-white">رسم تخطيطي</h3>
+                    <div class="flex gap-2">
+                        <button id="downloadSvgBtn" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm">تحميل SVG</button>
+                        <button id="downloadPngBtn" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm">تحميل PNG</button>
+                    </div>
+                </div>
+                <div id="diagramContainer" class="bg-slate-900/70 rounded-lg border border-slate-700 p-3">
+                    <div id="svgHolder" class="w-full overflow-hidden"></div>
+                </div>
+            </section>
+        </main>
+        <!-- Footer -->
+        <footer class="text-center text-gray-400 mt-8 space-y-2">
+            <p class="bg-slate-800/50 p-3 rounded-lg">إعداد: أسعد الخصيبي - مشرف الرياضة المدرسية - محافظة مسقط</p>
+            <p class="bg-slate-800/50 p-3 rounded-lg">جميع الحقوق محفوظة لدائرة الإشراف التربوي</p>
+        </footer>
+    </div>
+    <script>
+    // Grab DOM elements
+    const courtTypeSelect = document.getElementById('courtType');
+    const courtWidthInput = document.getElementById('courtWidth');
+    const decimalsSelect = document.getElementById('decimals');
+    const unitSelect = document.getElementById('unitSelect');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resultsSection = document.getElementById('results');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultDetails = document.getElementById('resultDetails');
+    const errorDiv = document.getElementById('error');
+    const diagramSection = document.getElementById('diagram');
+    const diagramContainer = document.getElementById('diagramContainer');
+    const svgHolder = document.getElementById('svgHolder');
+    const downloadSvgBtn = document.getElementById('downloadSvgBtn');
+    const downloadPngBtn = document.getElementById('downloadPngBtn');
+    const inputLabel = document.getElementById('inputLabel');
+
+    // Conversion constants
+    const CONVERSION = {
+        m: { factor: 1, name: 'متر', short: 'م' },
+        ft: { factor: 0.3048, name: 'قدم', short: 'قدم' },
+        yd: { factor: 0.9144, name: 'ياردة', short: 'ياردة' }
+    };
+
+    // Labels for each court type
+    const labels = {
+        football: 'أدخل عرض ملعب كرة القدم',
+        handball: 'أدخل عرض ملعب كرة اليد',
+        volleyball: 'أدخل عرض ملعب الكرة الطائرة',
+        basketball: 'أدخل عرض ملعب كرة السلة'
+    };
+
+    // Update input label when court type or unit changes
+    function updateInputLabel() {
+        const baseText = labels[courtTypeSelect.value] || labels.football;
+        const unitName = CONVERSION[unitSelect.value]?.name || 'متر';
+        inputLabel.textContent = `${baseText} (ب${unitName}):`;
+    }
+
+    // Update input label when court type changes
+    courtTypeSelect.addEventListener('change', updateInputLabel);
+    unitSelect.addEventListener('change', updateInputLabel);
+
+    // Listen for calculate button click
+    calculateBtn.addEventListener('click', calculateMeasurements);
+    // Also trigger calculation on Enter key in width input
+    courtWidthInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            calculateMeasurements();
+        }
+    });
+
+    function round(value, decimals) {
+        return Number(value.toFixed(decimals));
+    }
+
+    function convertToMeters(value, unit) {
+        return value * CONVERSION[unit].factor;
+    }
+
+    function convertFromMeters(value, unit) {
+        return value / CONVERSION[unit].factor;
+    }
+
+    function formatValue(value, decimals, unit) {
+        const converted = convertFromMeters(value, unit);
+        const unitShort = unit === 'm' ? 'م' : CONVERSION[unit].short;
+        return `${round(converted, decimals)} ${unitShort}`;
+    }
+
+    /**
+     * Calculates measurements for the selected court type and displays results and diagram.
+     */
+    function calculateMeasurements() {
+        const type = courtTypeSelect.value;
+        const inputValue = parseFloat(courtWidthInput.value);
+        const decimals = parseInt(decimalsSelect.value) || 1;
+        const unit = unitSelect.value;
+        
+        if (isNaN(inputValue) || inputValue <= 0) {
+            errorDiv.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+            diagramSection.classList.add('hidden');
+            return;
+        }
+        errorDiv.classList.add('hidden');
+        
+        // Convert input to meters for calculations
+        const widthInMeters = convertToMeters(inputValue, unit);
+        const width = widthInMeters;
+        
+        let length;
+        let calculations = {};
+        let title = '';
+        // Standard widths for ratio calculations (in meters)
+        const standardWidths = {
+            football: 50,
+            handball: 20,
+            volleyball: 9,
+            basketball: 15
+        };
+        const sw = standardWidths[type];
+        const unitShort = unit === 'm' ? 'م' : CONVERSION[unit].short;
+
+        switch (type) {
+             case 'football':
+                length = width * 2;
+                title = 'نتائج قياسات ملعب كرة القدم المصغر';
+                calculations = {
+                    'عرض الملعب': formatValue(width, decimals, unit),
+                    'طول الملعب': formatValue(length, decimals, unit),
+                    'منطقة الجزاء': formatValue((16.5 / sw) * width, decimals, unit),
+                    'منطقة المرمى': formatValue((5.5 / sw) * width, decimals, unit),
+                    'نقطة الجزاء': formatValue((11 / sw) * width, decimals, unit),
+                    'قوس الجزاء': formatValue((9.15 / sw) * width, decimals, unit),
+                    'دائرة المنتصف': formatValue((9.15 / sw) * width, decimals, unit)
+                };
+                break;
+            case 'handball':
+                length = width * 2;
+                title = 'نتائج قياسات ملعب كرة اليد المصغر';
+                calculations = {
+                    'عرض الملعب': formatValue(width, decimals, unit),
+                    'طول الملعب': formatValue(length, decimals, unit),
+                    'خط الرمية الحرة (9م)': formatValue((9 / sw) * width, decimals, unit),
+                    'منطقة المرمى (6م)': formatValue((6 / sw) * width, decimals, unit),
+                    'خط رمية الجزاء (7م)': formatValue((7 / sw) * width, decimals, unit),
+                    'خط حارس المرمى (4م)': formatValue((4 / sw) * width, decimals, unit),
+                };
+                break;
+            case 'volleyball':
+                length = width * 2;
+                title = 'نتائج قياسات ملعب الكرة الطائرة المصغر';
+                calculations = {
+                    'عرض الملعب': formatValue(width, decimals, unit),
+                    'طول الملعب': formatValue(length, decimals, unit),
+                    'خط الهجوم (3م)': formatValue((3 / sw) * width, decimals, unit),
+                };
+                break;
+            case 'basketball':
+                length = width * 2 - 2;
+                title = 'نتائج قياسات ملعب كرة السلة المصغر';
+                calculations = {
+                    'عرض الملعب': formatValue(width, decimals, unit),
+                    'طول الملعب': formatValue(length, decimals, unit),
+                    'خط الرمية الحرة': formatValue((5.8 / sw) * width, decimals, unit),
+                    'خط الثلاث نقاط': formatValue((6.75 / sw) * width, decimals, unit),
+                    'جانب الثلاث نقاط': formatValue((0.9 / sw) * width, decimals, unit),
+                };
+                break;
+            default:
+                return;
+        }
+        // Display results
+        displayResults(title, calculations);
+        // Draw diagram (always uses meters internally)
+        drawDiagram({type, width, length, calculations});
+
+        // Apply 3D effect class for all courts
+        diagramContainer.classList.add('perspective-container');
+        svgHolder.classList.add('is-3d');
+    }
+
+    function displayResults(title, data) {
+        resultTitle.textContent = title;
+        resultDetails.innerHTML = '';
+        for (const key in data) {
+            const val = data[key];
+            const p = document.createElement('p');
+            p.className = 'flex justify-between items-center';
+            p.innerHTML = `<span>${key}:</span><span class="font-bold text-white bg-blue-600 px-3 py-1 rounded-md">${val}</span>`;
+            resultDetails.appendChild(p);
+        }
+        resultsSection.classList.remove('hidden');
+    }
+    
+    function drawDiagram({type, width, length}) {
+        const scale = 10;
+        const w = width * scale;
+        const l = length * scale;
+        let g = '';
+        let viewBox;
+        const borderThickness = width * 0.15 * scale;
+        const sw = {football: 50, handball: 20, volleyball: 9, basketball: 15}[type];
+
+        if (type === 'football') {
+            g += `<rect x="${-borderThickness}" y="${-borderThickness}" width="${l + 2 * borderThickness}" height="${w + 2 * borderThickness}" fill="#374151" rx="5" />`;
+            const penaltyBoxDepth = (16.5 / sw) * width * scale;
+            const goalBoxDepth = (5.5 / sw) * width * scale;
+            const penaltyMarkDist = (11 / sw) * width * scale;
+            const centerRadius = (9.15 / sw) * width * scale;
+            const penaltyArcRadius = (9.15 / sw) * width * scale;
+            const cornerArcRadius = (1 / sw) * width * scale;
+
+            g += `<rect x="0" y="0" width="${l}" height="${w}" fill="#0a4228" stroke="white" stroke-width="1.5"/>`;
+            const halfW = w / 2;
+            const penaltyBoxWidth = (40.3 / sw) * width * scale;
+            const goalBoxWidth = (18.32 / sw) * width * scale;
+            g += `<line x1="${l/2}" y1="0" x2="${l/2}" y2="${w}" stroke="white" stroke-width="1.5"/>`;
+            g += `<circle cx="${l/2}" cy="${w/2}" r="${centerRadius}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<circle cx="${l/2}" cy="${w/2}" r="1.5" fill="white"/>`;
+            
+            // Areas
+            g += `<rect x="0" y="${halfW - penaltyBoxWidth/2}" width="${penaltyBoxDepth}" height="${penaltyBoxWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<rect x="0" y="${halfW - goalBoxWidth/2}" width="${goalBoxDepth}" height="${goalBoxWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<rect x="${l - penaltyBoxDepth}" y="${halfW - penaltyBoxWidth/2}" width="${penaltyBoxDepth}" height="${penaltyBoxWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<rect x="${l - goalBoxDepth}" y="${halfW - goalBoxWidth/2}" width="${goalBoxDepth}" height="${goalBoxWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            
+            // Penalty marks and corrected arcs
+            g += `<circle cx="${penaltyMarkDist}" cy="${w/2}" r="1.5" fill="white"/>`;
+            g += `<circle cx="${l - penaltyMarkDist}" cy="${w/2}" r="1.5" fill="white"/>`;
+
+            const arc_delta_x_sq = Math.pow(penaltyBoxDepth - penaltyMarkDist, 2);
+            if (penaltyArcRadius * penaltyArcRadius > arc_delta_x_sq) {
+                const arc_delta_y = Math.sqrt(penaltyArcRadius * penaltyArcRadius - arc_delta_x_sq);
+                const y_start = halfW - arc_delta_y;
+                const y_end = halfW + arc_delta_y;
+                const leftArcPath = `M ${penaltyBoxDepth} ${y_start} A ${penaltyArcRadius} ${penaltyArcRadius} 0 0 1 ${penaltyBoxDepth} ${y_end}`;
+                g += `<path d="${leftArcPath}" stroke="white" stroke-width="1.5" fill="none"/>`;
+                const rightArcPath = `M ${l - penaltyBoxDepth} ${y_start} A ${penaltyArcRadius} ${penaltyArcRadius} 0 0 0 ${l - penaltyBoxDepth} ${y_end}`;
+                g += `<path d="${rightArcPath}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            }
+
+            // Corner arcs
+            g += `<path d="M 0 ${cornerArcRadius} A ${cornerArcRadius} ${cornerArcRadius} 0 0 1 ${cornerArcRadius} 0" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<path d="M 0 ${w-cornerArcRadius} A ${cornerArcRadius} ${cornerArcRadius} 0 0 0 ${cornerArcRadius} ${w}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<path d="M ${l} ${cornerArcRadius} A ${cornerArcRadius} ${cornerArcRadius} 0 0 0 ${l-cornerArcRadius} 0" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<path d="M ${l} ${w-cornerArcRadius} A ${cornerArcRadius} ${cornerArcRadius} 0 0 1 ${l-cornerArcRadius} ${w}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            
+            viewBox = `${-borderThickness-5} ${-borderThickness-5} ${l + 2*borderThickness+10} ${w + 2*borderThickness+10}`;
+
+        } else if (type === 'handball') {
+            const mid = w / 2;
+            const six = (6 / sw) * width * scale;
+            const nine = (9 / sw) * width * scale;
+            const seven = (7 / sw) * width * scale;
+            const four = (4 / sw) * width * scale;
+            g += `<rect x="${-borderThickness}" y="${-borderThickness}" width="${l + 2 * borderThickness}" height="${w + 2 * borderThickness}" fill="#D2B48C" rx="5" />`;
+            g += `<rect x="0" y="0" width="${l}" height="${w}" fill="#018749" stroke="white" stroke-width="1.5"/>`;
+            const goalHeight = 0.2 * w;
+            const goalWidth = 5;
+            g += `<rect x="${-goalWidth}" y="${mid - goalHeight/2}" width="${goalWidth}" height="${goalHeight}" fill="none" stroke="#FFF" stroke-width="3"/>`;
+            g += `<rect x="${l}" y="${mid - goalHeight/2}" width="${goalWidth}" height="${goalHeight}" fill="none" stroke="#FFF" stroke-width="3"/>`;
+            g += `<clipPath id="leftClip"><rect x="-1" y="0" width="${l/2 + 2}" height="${w}" /></clipPath>`;
+            g += `<clipPath id="rightClip"><rect x="${l/2 - 1}" y="0" width="${l/2 + 2}" height="${w}" /></clipPath>`;
+            g += `<line x1="${l/2}" y1="0" x2="${l/2}" y2="${w}" stroke="white" stroke-width="1.5"/>`;
+            const createGoalAreaPath = (r) => { const goalWidthStandard = 3; const goalWidthScaled = (goalWidthStandard / sw) * width * scale; const y1 = mid - goalWidthScaled / 2; const y2 = mid + goalWidthScaled / 2; const d_left_line = `M 0 ${y1 - r} A ${r} ${r} 0 0 1 ${r} ${y1} L ${r} ${y2} A ${r} ${r} 0 0 1 0 ${y2 + r}`; const d_left_fill = `M ${r} ${y1} L ${r} ${y2} A ${r} ${r} 0 0 1 0 ${y2+r} L 0 0 L 0 ${y1-r} A ${r} ${r} 0 0 1 ${r} ${y1} Z`; const d_right_line = `M ${l} ${y1 - r} A ${r} ${r} 0 0 0 ${l-r} ${y1} L ${l-r} ${y2} A ${r} ${r} 0 0 0 ${l} ${y2 + r}`; const d_right_fill = `M ${l-r} ${y1} L ${l-r} ${y2} A ${r} ${r} 0 0 0 ${l} ${y2+r} L ${l} 0 L ${l} ${y1-r} A ${r} ${r} 0 0 0 ${l-r} ${y1} Z`; return { d_left_line, d_left_fill, d_right_line, d_right_fill }; };
+            const paths6m = createGoalAreaPath(six);
+            g += `<path d="${paths6m.d_left_fill}" fill="#F99F31" clip-path="url(#leftClip)" />`;
+            g += `<path d="${paths6m.d_right_fill}" fill="#F99F31" clip-path="url(#rightClip)" />`;
+            g += `<path d="${paths6m.d_left_line}" stroke="white" stroke-width="1.5" fill="none" clip-path="url(#leftClip)" />`;
+            g += `<path d="${paths6m.d_right_line}" stroke="white" stroke-width="1.5" fill="none" clip-path="url(#rightClip)" />`;
+            const paths9m = createGoalAreaPath(nine);
+            g += `<path d="${paths9m.d_left_line}" stroke="white" stroke-width="1.5" stroke-dasharray="8 6" fill="none" clip-path="url(#leftClip)" />`;
+            g += `<path d="${paths9m.d_right_line}" stroke="white" stroke-width="1.5" stroke-dasharray="8 6" fill="none" clip-path="url(#rightClip)" />`;
+            g += `<line x1="${seven}" y1="${mid-5}" x2="${seven}" y2="${mid+5}" stroke="white" stroke-width="2"/>`;
+            g += `<line x1="${l-seven}" y1="${mid-5}" x2="${l-seven}" y2="${mid+5}" stroke="white" stroke-width="2"/>`;
+            g += `<line x1="${four}" y1="${mid-5}" x2="${four}" y2="${mid+5}" stroke="white" stroke-width="2"/>`;
+            g += `<line x1="${l-four}" y1="${mid-5}" x2="${l-four}" y2="${mid+5}" stroke="white" stroke-width="2"/>`;
+
+            viewBox = `${-borderThickness-goalWidth-5} ${-borderThickness-5} ${l + 2*borderThickness+2*goalWidth+10} ${w + 2*borderThickness+10}`;
+        } else if (type === 'volleyball') {
+            const freeZone = borderThickness;
+            g += `<rect x="${-freeZone}" y="${-freeZone}" width="${l + 2 * freeZone}" height="${w + 2 * freeZone}" fill="#028441" />`;
+            g += `<rect x="0" y="0" width="${l}" height="${w}" fill="#0077c8" stroke="white" stroke-width="1.5"/>`;
+            const frontZoneDepth = (3 / sw) * width * scale;
+            g += `<line x1="${l/2 - frontZoneDepth}" y1="0" x2="${l/2 - frontZoneDepth}" y2="${w}" stroke="white" stroke-width="1.5"/>`;
+            g += `<line x1="${l/2 + frontZoneDepth}" y1="0" x2="${l/2 + frontZoneDepth}" y2="${w}" stroke="white" stroke-width="1.5"/>`;
+            g += `<line x1="${l/2}" y1="-5" x2="${l/2}" y2="${w+5}" stroke="#333" stroke-width="4"/>`;
+            const poleRadius = 5;
+            g += `<circle cx="${l/2}" cy="-${poleRadius*2}" r="${poleRadius}" fill="#555"/>`;
+            g += `<circle cx="${l/2}" cy="${w + poleRadius*2}" r="${poleRadius}" fill="#555"/>`;
+
+            viewBox = `${-freeZone-5} ${-freeZone-poleRadius*2-5} ${l + 2*freeZone+10} ${w + 2*freeZone+poleRadius*4+10}`;
+        } else if (type === 'basketball') {
+            g += `<rect x="${-borderThickness}" y="${-borderThickness}" width="${l + 2 * borderThickness}" height="${w + 2 * borderThickness}" fill="#A0522D" rx="5" />`;
+            g += `<rect x="0" y="0" width="${l}" height="${w}" fill="#b57a4a" stroke="white" stroke-width="1.5"/>`;
+            g += `<line x1="${l/2}" y1="0" x2="${l/2}" y2="${w}" stroke="white" stroke-width="1.5"/>`;
+            const mid = w / 2;
+            const laneDepth = (5.8 / sw) * width * scale;
+            const threePointRadius = (6.75 / sw) * width * scale;
+            const basketDistFromBaseline = (1.575 / sw) * width * scale;
+            const laneWidth = (4.9 / sw) * width * scale;
+            const centerCircleRadius = (1.8 / sw) * width * scale;
+            const freeThrowRadius = centerCircleRadius;
+            const threePointSideDist = (0.9 / sw) * width * scale;
+            g += `<circle cx="${l/2}" cy="${mid}" r="${centerCircleRadius}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<rect x="0" y="${mid - laneWidth/2}" width="${laneDepth}" height="${laneWidth}" fill="#F99F31" opacity="0.6"/>`;
+            g += `<rect x="0" y="${mid - laneWidth/2}" width="${laneDepth}" height="${laneWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<path d="M ${laneDepth} ${mid - freeThrowRadius} A ${freeThrowRadius} ${freeThrowRadius} 0 0 1 ${laneDepth} ${mid + freeThrowRadius}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            const basketCenterLeftX = basketDistFromBaseline;
+            const threePointArcStartLeftX = basketCenterLeftX + Math.sqrt(Math.max(0, threePointRadius**2 - (mid - threePointSideDist)**2));
+            g += `<line x1="0" y1="${threePointSideDist}" x2="${threePointArcStartLeftX}" y2="${threePointSideDist}" stroke="white" stroke-width="1.5"/>`;
+            g += `<line x1="0" y1="${w - threePointSideDist}" x2="${threePointArcStartLeftX}" y2="${w - threePointSideDist}" stroke="white" stroke-width="1.5"/>`;
+            g += `<path d="M ${threePointArcStartLeftX} ${threePointSideDist} A ${threePointRadius} ${threePointRadius} 0 0 1 ${threePointArcStartLeftX} ${w - threePointSideDist}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<rect x="${l - laneDepth}" y="${mid - laneWidth/2}" width="${laneDepth}" height="${laneWidth}" fill="#F99F31" opacity="0.6"/>`;
+            g += `<rect x="${l - laneDepth}" y="${mid - laneWidth/2}" width="${laneDepth}" height="${laneWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            g += `<path d="M ${l - laneDepth} ${mid - freeThrowRadius} A ${freeThrowRadius} ${freeThrowRadius} 0 0 0 ${l - laneDepth} ${mid + freeThrowRadius}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            const basketCenterRightX = l - basketDistFromBaseline;
+            const threePointArcStartRightX = basketCenterRightX - Math.sqrt(Math.max(0, threePointRadius**2 - (mid - threePointSideDist)**2));
+            g += `<line x1="${l}" y1="${threePointSideDist}" x2="${threePointArcStartRightX}" y2="${threePointSideDist}" stroke="white" stroke-width="1.5"/>`;
+            g += `<line x1="${l}" y1="${w - threePointSideDist}" x2="${threePointArcStartRightX}" y2="${w - threePointSideDist}" stroke="white" stroke-width="1.5"/>`;
+            g += `<path d="M ${threePointArcStartRightX} ${threePointSideDist} A ${threePointRadius} ${threePointRadius} 0 0 0 ${threePointArcStartRightX} ${w - threePointSideDist}" stroke="white" stroke-width="1.5" fill="none"/>`;
+            
+            viewBox = `${-borderThickness-5} ${-borderThickness-5} ${l + 2*borderThickness+10} ${w + 2*borderThickness+10}`;
+        }
+        const svg = `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" style="display:block; max-width:100%; height:auto;">${g}</svg>`;
+        svgHolder.innerHTML = svg;
+        diagramSection.classList.remove('hidden');
+    }
+
+    function downloadSVG(filename) {
+        const svgEl = svgHolder.querySelector('svg');
+        if (!svgEl) return;
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svgEl);
+        if (!source.match(/^<\?xml/)) {
+            source = '<?xml version="1.0" standalone="no"?>\n' + source;
+        }
+        const blob = new Blob([source], {type: 'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    
+    function downloadPNG(filename) {
+        const svgEl = svgHolder.querySelector('svg');
+        if (!svgEl) return;
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svgEl);
+        if (!source.match(/^<\?xml/)) {
+            source = '<?xml version="1.0" standalone="no"?>\n' + source;
+        }
+        const svgBlob = new Blob([source], {type: 'image/svg+xml'});
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const svgSize = svgEl.getBoundingClientRect();
+            const scaleFactor = 2;
+            canvas.width = svgSize.width * scaleFactor;
+            canvas.height = svgSize.height * scaleFactor;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(scaleFactor, scaleFactor);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, svgSize.width, svgSize.height);
+            canvas.toBlob(function(blob) {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        };
+        img.onerror = function() {
+            URL.revokeObjectURL(url);
+        };
+        img.src = url;
+    }
+    // Attach download buttons events
+    downloadSvgBtn.addEventListener('click', () => {
+        downloadSVG('court-diagram.svg');
+    });
+    downloadPngBtn.addEventListener('click', () => {
+        downloadPNG('court-diagram.png');
+    });
+    </script>
+</body>
+</html>
