@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاسبة قياسات الملاعب المصغرة</title>
+    <title id="pageTitle">حاسبة قياسات الملاعب المصغرة</title>
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts (Cairo) -->
@@ -14,7 +14,6 @@
         body {
             font-family: 'Cairo', sans-serif;
         }
-        /* Hide number input spinners */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -23,7 +22,6 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-        /* Styles for 3D effect */
         .perspective-container {
             perspective: 1200px;
             padding-top: 2rem;
@@ -34,67 +32,88 @@
             transition: transform 0.5s ease-out;
             box-shadow: 0 50px 30px -20px rgba(0,0,0,0.4);
         }
+        .lang-btn {
+            transition: all 0.3s ease;
+        }
+        .lang-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
     <div class="w-full max-w-3xl mx-auto">
+        <!-- Language Toggle -->
+        <div class="flex justify-center mb-4 gap-2">
+            <button id="langAr" class="lang-btn active px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 font-bold" onclick="setLanguage('ar')">🇴🇲 العربية</button>
+            <button id="langEn" class="lang-btn px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 font-bold" onclick="setLanguage('en')">🇬🇧 English</button>
+        </div>
+        
         <!-- Header -->
-        <header class="text-center text-gray-400 mb-6 space-y-1">
-            <p>المديرية العامة للتربية والتعليم بمحافظة مسقط</p>
-            <p>دائرة الإشراف التربوي</p>
-            <p>قسم الإشراف الفني</p>
-            <p class="font-bold">الرياضة المدرسية</p>
+        <header class="text-center text-gray-400 mb-6 space-y-1" id="headerSection">
+            <p data-i18n="header1">المديرية العامة للتربية والتعليم بمحافظة مسقط</p>
+            <p data-i18n="header2">دائرة الإشراف التربوي</p>
+            <p data-i18n="header3">قسم الإشراف الفني</p>
+            <p class="font-bold" data-i18n="header4">الرياضة المدرسية</p>
         </header>
+        
         <!-- Main Card -->
         <main class="bg-slate-800/50 backdrop-blur p-6 sm:p-8 rounded-2xl shadow-2xl border border-slate-700">
             <!-- Title -->
-            <h1 class="text-3xl sm:text-4xl font-bold text-center text-white mb-8">حاسبة قياسات الملاعب المصغرة</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-center text-white mb-8" data-i18n="mainTitle">حاسبة قياسات الملاعب المصغرة</h1>
+            
             <!-- Form Elements -->
             <div class="mb-4">
-                <label for="courtType" class="block mb-2 text-lg font-medium text-gray-300">اختر نوع الملعب:</label>
+                <label for="courtType" class="block mb-2 text-lg font-medium text-gray-300" data-i18n="selectCourt">اختر نوع الملعب:</label>
                 <select id="courtType" class="bg-slate-700 border border-slate-600 text-white text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
-                    <option value="football" selected>كرة القدم</option>
-                    <option value="handball">كرة اليد</option>
-                    <option value="volleyball">الكرة الطائرة</option>
-                    <option value="basketball">كرة السلة</option>
+                    <option value="football" data-i18n="football">كرة القدم</option>
+                    <option value="handball" data-i18n="handball">كرة اليد</option>
+                    <option value="volleyball" data-i18n="volleyball">الكرة الطائرة</option>
+                    <option value="basketball" data-i18n="basketball">كرة السلة</option>
                 </select>
             </div>
+            
             <div class="mb-4">
-                <label id="inputLabel" for="courtWidth" class="block mb-2 text-lg font-medium text-gray-300">أدخل عرض الملعب (بالمتر):</label>
+                <label id="inputLabel" for="courtWidth" class="block mb-2 text-lg font-medium text-gray-300">أدخل عرض الملعب:</label>
                 <div class="flex gap-2">
                     <input type="number" id="courtWidth" class="bg-slate-700 border border-slate-600 text-white text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3" placeholder="مثال: 15" min="1" step="0.01">
                     <select id="unitSelect" class="bg-slate-700 border border-slate-600 text-white text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3 w-32">
-                        <option value="m" selected>متر</option>
-                        <option value="ft">قدم</option>
-                        <option value="yd">ياردة</option>
+                        <option value="m" data-i18n="meter">متر</option>
+                        <option value="ft" data-i18n="foot">قدم</option>
+                        <option value="yd" data-i18n="yard">ياردة</option>
                     </select>
                 </div>
             </div>
-            <!-- Optional decimals selection -->
+            
+            <!-- Decimals selection -->
             <div class="mb-4">
-                <label for="decimals" class="block mb-2 text-lg font-medium text-gray-300">عدد المنازل العشرية:</label>
+                <label for="decimals" class="block mb-2 text-lg font-medium text-gray-300" data-i18n="decimals">عدد المنازل العشرية:</label>
                 <select id="decimals" class="bg-slate-700 border border-slate-600 text-white text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
                     <option value="0">0</option>
                     <option value="1" selected>1</option>
                     <option value="2">2</option>
                 </select>
             </div>
+            
             <!-- Calculate Button -->
-            <button id="calculateBtn" class="w-full bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-bold rounded-lg text-lg px-5 py-3 text-center transition-colors duration-300 ease-in-out shadow-lg">احسب القياسات</button>
+            <button id="calculateBtn" class="w-full bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-bold rounded-lg text-lg px-5 py-3 text-center transition-colors duration-300 ease-in-out shadow-lg" data-i18n="calculateBtn">احسب القياسات</button>
+            
             <!-- Error Message -->
-            <div id="error" class="mt-4 text-center text-red-400 font-semibold hidden">الرجاء إدخال قيمة عرض صالحة.</div>
+            <div id="error" class="mt-4 text-center text-red-400 font-semibold hidden" data-i18n="errorMsg">الرجاء إدخال قيمة عرض صالحة.</div>
+            
             <!-- Results -->
             <section id="results" class="mt-8 hidden">
                 <h2 id="resultTitle" class="text-2xl font-bold text-white mb-4 border-b-2 border-slate-600 pb-2"></h2>
                 <div id="resultDetails" class="space-y-3 text-lg bg-slate-900/70 p-5 rounded-lg"></div>
             </section>
+            
             <!-- Diagram Section -->
             <section id="diagram" class="mt-6 hidden">
                 <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-lg font-bold text-white">رسم تخطيطي</h3>
+                    <h3 class="text-lg font-bold text-white" data-i18n="diagram">رسم تخطيطي</h3>
                     <div class="flex gap-2">
-                        <button id="downloadSvgBtn" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm">تحميل SVG</button>
-                        <button id="downloadPngBtn" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm">تحميل PNG</button>
+                        <button id="downloadSvgBtn" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm">SVG</button>
+                        <button id="downloadPngBtn" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm">PNG</button>
                     </div>
                 </div>
                 <div id="diagramContainer" class="bg-slate-900/70 rounded-lg border border-slate-700 p-3">
@@ -102,14 +121,145 @@
                 </div>
             </section>
         </main>
+        
         <!-- Footer -->
-        <footer class="text-center text-gray-400 mt-8 space-y-2">
-            <p class="bg-slate-800/50 p-3 rounded-lg">إعداد: أسعد الخصيبي - مشرف الرياضة المدرسية - محافظة مسقط</p>
-            <p class="bg-slate-800/50 p-3 rounded-lg">جميع الحقوق محفوظة لدائرة الإشراف التربوي</p>
+        <footer class="text-center text-gray-400 mt-8 space-y-2" id="footerSection">
+            <p class="bg-slate-800/50 p-3 rounded-lg"><span data-i18n="footer1">إعداد:</span> <span data-i18n="author">أسعد الخصيبي - مشرف الرياضة المدرسية - محافظة مسقط</span></p>
+            <p class="bg-slate-800/50 p-3 rounded-lg" data-i18n="footer2">جميع الحقوق محفوظة لدائرة الإشراف التربوي</p>
         </footer>
     </div>
+    
     <script>
-    // Grab DOM elements
+    // ==================== Translation Data ====================
+    const translations = {
+        ar: {
+            header1: "المديرية العامة للتربية والتعليم بمحافظة مسقط",
+            header2: "دائرة الإشراف التربوي",
+            header3: "قسم الإشراف الفني",
+            header4: "الرياضة المدرسية",
+            mainTitle: "حاسبة قياسات الملاعب المصغرة",
+            selectCourt: "اختر نوع الملعب:",
+            football: "كرة القدم",
+            handball: "كرة اليد",
+            volleyball: "الكرة الطائرة",
+            basketball: "كرة السلة",
+            inputLabel: "أدخل عرض الملعب (ب{unit}):",
+            meter: "متر",
+            foot: "قدم",
+            yard: "ياردة",
+            decimals: "عدد المنازل العشرية:",
+            calculateBtn: "احسب القياسات",
+            errorMsg: "الرجاء إدخال قيمة عرض صالحة.",
+            diagram: "رسم تخطيطي",
+            footer1: "إعداد:",
+            author: "أسعد الخصيبي - مشرف الرياضة المدرسية - محافظة مسقط",
+            footer2: "جميع الحقوق محفوظة لدائرة الإشراف التربوي",
+            results: {
+                football: "نتائج قياسات ملعب كرة القدم المصغر",
+                handball: "نتائج قياسات ملعب كرة اليد المصغر",
+                volleyball: "نتائج قياسات ملعب الكرة الطائرة المصغر",
+                basketball: "نتائج قياسات ملعب كرة السلة المصغر"
+            },
+            courtMeasures: {
+                football: {
+                    'عرض الملعب': 'عرض الملعب',
+                    'طول الملعب': 'طول الملعب',
+                    'منطقة الجزاء': 'منطقة الجزاء',
+                    'منطقة المرمى': 'منطقة المرمى',
+                    'نقطة الجزاء': 'نقطة الجزاء',
+                    'قوس الجزاء': 'قوس الجزاء',
+                    'دائرة المنتصف': 'دائرة المنتصف'
+                },
+                handball: {
+                    'عرض الملعب': 'عرض الملعب',
+                    'طول الملعب': 'طول الملعب',
+                    'خط الرمية الحرة (9م)': 'خط الرمية الحرة (9م)',
+                    'منطقة المرمى (6م)': 'منطقة المرمى (6م)',
+                    'خط رمية الجزاء (7م)': 'خط رمية الجزاء (7م)',
+                    'خط حارس المرمى (4م)': 'خط حارس المرمى (4م)'
+                },
+                volleyball: {
+                    'عرض الملعب': 'عرض الملعب',
+                    'طول الملعب': 'طول الملعب',
+                    'خط الهجوم (3م)': 'خط الهجوم (3م)'
+                },
+                basketball: {
+                    'عرض الملعب': 'عرض الملعب',
+                    'طول الملعب': 'طول الملعب',
+                    'خط الرمية الحرة': 'خط الرمية الحرة',
+                    'خط الثلاث نقاط': 'خط الثلاث نقاط',
+                    'جانب الثلاث نقاط': 'جانب الثلاث نقاط'
+                }
+            },
+            unitShort: { m: 'م', ft: 'قدم', yd: 'ياردة' }
+        },
+        en: {
+            header1: "General Directorate of Education, Muscat Governorate",
+            header2: "Educational Supervision Department",
+            header3: "Technical Supervision Section",
+            header4: "School Sports",
+            mainTitle: "Mini Court Dimensions Calculator",
+            selectCourt: "Select Court Type:",
+            football: "Football (Soccer)",
+            handball: "Handball",
+            volleyball: "Volleyball",
+            basketball: "Basketball",
+            inputLabel: "Enter court width (in {unit}):",
+            meter: "Meter",
+            foot: "Foot",
+            yard: "Yard",
+            decimals: "Decimal Places:",
+            calculateBtn: "Calculate Dimensions",
+            errorMsg: "Please enter a valid width value.",
+            diagram: "Diagram",
+            footer1: "Developed by:",
+            author: "Asaad Al-Khusaibi - School Sports Supervisor - Muscat",
+            footer2: "All rights reserved - Educational Supervision Department",
+            results: {
+                football: "Mini Football (Soccer) Court Dimensions",
+                handball: "Mini Handball Court Dimensions",
+                volleyball: "Mini Volleyball Court Dimensions",
+                basketball: "Mini Basketball Court Dimensions"
+            },
+            courtMeasures: {
+                football: {
+                    'عرض الملعب': 'Court Width',
+                    'طول الملعب': 'Court Length',
+                    'منطقة الجزاء': 'Penalty Area',
+                    'منطقة المرمى': 'Goal Area',
+                    'نقطة الجزاء': 'Penalty Spot',
+                    'قوس الجزاء': 'Penalty Arc',
+                    'دائرة المنتصف': 'Center Circle'
+                },
+                handball: {
+                    'عرض الملعب': 'Court Width',
+                    'طول الملعب': 'Court Length',
+                    'خط الرمية الحرة (9م)': 'Free Throw Line (9m)',
+                    'منطقة المرمى (6م)': 'Goal Area (6m)',
+                    'خط رمية الجزاء (7م)': 'Penalty Throw Line (7m)',
+                    'خط حارس المرمى (4م)': 'Goalkeeper Line (4m)'
+                },
+                volleyball: {
+                    'عرض الملعب': 'Court Width',
+                    'طول الملعب': 'Court Length',
+                    'خط الهجوم (3م)': 'Attack Line (3m)'
+                },
+                basketball: {
+                    'عرض الملعب': 'Court Width',
+                    'طول الملعب': 'Court Length',
+                    'خط الرمية الحرة': 'Free Throw Line',
+                    'خط الثلاث نقاط': 'Three-Point Line',
+                    'جانب الثلاث نقاط': 'Three-Point Side'
+                }
+            },
+            unitShort: { m: 'm', ft: 'ft', yd: 'yd' }
+        }
+    };
+
+    // ==================== State ====================
+    let currentLang = 'ar';
+
+    // ==================== DOM Elements ====================
     const courtTypeSelect = document.getElementById('courtType');
     const courtWidthInput = document.getElementById('courtWidth');
     const decimalsSelect = document.getElementById('decimals');
@@ -122,44 +272,55 @@
     const diagramSection = document.getElementById('diagram');
     const diagramContainer = document.getElementById('diagramContainer');
     const svgHolder = document.getElementById('svgHolder');
-    const downloadSvgBtn = document.getElementById('downloadSvgBtn');
-    const downloadPngBtn = document.getElementById('downloadPngBtn');
     const inputLabel = document.getElementById('inputLabel');
 
-    // Conversion constants
+    // ==================== Conversion Constants ====================
     const CONVERSION = {
-        m: { factor: 1, name: 'متر', short: 'م' },
-        ft: { factor: 0.3048, name: 'قدم', short: 'قدم' },
-        yd: { factor: 0.9144, name: 'ياردة', short: 'ياردة' }
+        m: { factor: 1, name: { ar: 'متر', en: 'meters' } },
+        ft: { factor: 0.3048, name: { ar: 'قدم', en: 'feet' } },
+        yd: { factor: 0.9144, name: { ar: 'ياردة', en: 'yards' } }
     };
 
-    // Labels for each court type
-    const labels = {
-        football: 'أدخل عرض ملعب كرة القدم',
-        handball: 'أدخل عرض ملعب كرة اليد',
-        volleyball: 'أدخل عرض ملعب الكرة الطائرة',
-        basketball: 'أدخل عرض ملعب كرة السلة'
-    };
-
-    // Update input label when court type or unit changes
-    function updateInputLabel() {
-        const baseText = labels[courtTypeSelect.value] || labels.football;
-        const unitName = CONVERSION[unitSelect.value]?.name || 'متر';
-        inputLabel.textContent = `${baseText} (ب${unitName}):`;
-    }
-
-    // Update input label when court type changes
-    courtTypeSelect.addEventListener('change', updateInputLabel);
-    unitSelect.addEventListener('change', updateInputLabel);
-
-    // Listen for calculate button click
-    calculateBtn.addEventListener('click', calculateMeasurements);
-    // Also trigger calculation on Enter key in width input
-    courtWidthInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
+    // ==================== Language Functions ====================
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        
+        // Update button states
+        document.getElementById('langAr').classList.toggle('active', lang === 'ar');
+        document.getElementById('langEn').classList.toggle('active', lang === 'en');
+        
+        // Apply all translations
+        const t = translations[lang];
+        
+        // Update page title
+        document.getElementById('pageTitle').textContent = t.mainTitle;
+        
+        // Update elements with data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) {
+                el.textContent = t[key];
+            }
+        });
+        
+        // Update input label
+        updateInputLabel();
+        
+        // Re-run calculation if results exist to update language
+        if (!resultsSection.classList.contains('hidden')) {
             calculateMeasurements();
         }
-    });
+    }
+
+    // ==================== Helper Functions ====================
+    function updateInputLabel() {
+        const unit = unitSelect.value;
+        const unitName = CONVERSION[unit].name[currentLang];
+        const t = translations[currentLang];
+        inputLabel.textContent = t.inputLabel.replace('{unit}', unitName);
+    }
 
     function round(value, decimals) {
         return Number(value.toFixed(decimals));
@@ -169,24 +330,27 @@
         return value * CONVERSION[unit].factor;
     }
 
-    function convertFromMeters(value, unit) {
-        return value / CONVERSION[unit].factor;
-    }
-
     function formatValue(value, decimals, unit) {
-        const converted = convertFromMeters(value, unit);
-        const unitShort = unit === 'm' ? 'م' : CONVERSION[unit].short;
-        return `${round(converted, decimals)} ${unitShort}`;
+        const t = translations[currentLang];
+        const unitShort = t.unitShort[unit];
+        return `${round(value, decimals)} ${unitShort}`;
     }
 
-    /**
-     * Calculates measurements for the selected court type and displays results and diagram.
-     */
+    // ==================== Event Listeners ====================
+    courtTypeSelect.addEventListener('change', updateInputLabel);
+    unitSelect.addEventListener('change', updateInputLabel);
+    calculateBtn.addEventListener('click', calculateMeasurements);
+    courtWidthInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') calculateMeasurements();
+    });
+
+    // ==================== Calculation ====================
     function calculateMeasurements() {
         const type = courtTypeSelect.value;
         const inputValue = parseFloat(courtWidthInput.value);
         const decimals = parseInt(decimalsSelect.value) || 1;
         const unit = unitSelect.value;
+        const t = translations[currentLang];
         
         if (isNaN(inputValue) || inputValue <= 0) {
             errorDiv.classList.remove('hidden');
@@ -196,14 +360,12 @@
         }
         errorDiv.classList.add('hidden');
         
-        // Convert input to meters for calculations
         const widthInMeters = convertToMeters(inputValue, unit);
         const width = widthInMeters;
         
         let length;
         let calculations = {};
-        let title = '';
-        // Standard widths for ratio calculations (in meters)
+        
         const standardWidths = {
             football: 50,
             handball: 20,
@@ -211,80 +373,75 @@
             basketball: 15
         };
         const sw = standardWidths[type];
-        const unitShort = unit === 'm' ? 'م' : CONVERSION[unit].short;
+        
+        const measureKeys = t.courtMeasures[type];
 
         switch (type) {
-             case 'football':
+            case 'football':
                 length = width * 2;
-                title = 'نتائج قياسات ملعب كرة القدم المصغر';
                 calculations = {
-                    'عرض الملعب': formatValue(width, decimals, unit),
-                    'طول الملعب': formatValue(length, decimals, unit),
-                    'منطقة الجزاء': formatValue((16.5 / sw) * width, decimals, unit),
-                    'منطقة المرمى': formatValue((5.5 / sw) * width, decimals, unit),
-                    'نقطة الجزاء': formatValue((11 / sw) * width, decimals, unit),
-                    'قوس الجزاء': formatValue((9.15 / sw) * width, decimals, unit),
-                    'دائرة المنتصف': formatValue((9.15 / sw) * width, decimals, unit)
+                    [measureKeys['عرض الملعب']]: round(widthInMeters, decimals),
+                    [measureKeys['طول الملعب']]: round(length, decimals),
+                    [measureKeys['منطقة الجزاء']]: round((16.5 / sw) * width, decimals),
+                    [measureKeys['منطقة المرمى']]: round((5.5 / sw) * width, decimals),
+                    [measureKeys['نقطة الجزاء']]: round((11 / sw) * width, decimals),
+                    [measureKeys['قوس الجزاء']]: round((9.15 / sw) * width, decimals),
+                    [measureKeys['دائرة المنتصف']]: round((9.15 / sw) * width, decimals)
                 };
                 break;
             case 'handball':
                 length = width * 2;
-                title = 'نتائج قياسات ملعب كرة اليد المصغر';
                 calculations = {
-                    'عرض الملعب': formatValue(width, decimals, unit),
-                    'طول الملعب': formatValue(length, decimals, unit),
-                    'خط الرمية الحرة (9م)': formatValue((9 / sw) * width, decimals, unit),
-                    'منطقة المرمى (6م)': formatValue((6 / sw) * width, decimals, unit),
-                    'خط رمية الجزاء (7م)': formatValue((7 / sw) * width, decimals, unit),
-                    'خط حارس المرمى (4م)': formatValue((4 / sw) * width, decimals, unit),
+                    [measureKeys['عرض الملعب']]: round(widthInMeters, decimals),
+                    [measureKeys['طول الملعب']]: round(length, decimals),
+                    [measureKeys['خط الرمية الحرة (9م)']]: round((9 / sw) * width, decimals),
+                    [measureKeys['منطقة المرمى (6م)']]: round((6 / sw) * width, decimals),
+                    [measureKeys['خط رمية الجزاء (7م)']]: round((7 / sw) * width, decimals),
+                    [measureKeys['خط حارس المرمى (4م)']]: round((4 / sw) * width, decimals)
                 };
                 break;
             case 'volleyball':
                 length = width * 2;
-                title = 'نتائج قياسات ملعب الكرة الطائرة المصغر';
                 calculations = {
-                    'عرض الملعب': formatValue(width, decimals, unit),
-                    'طول الملعب': formatValue(length, decimals, unit),
-                    'خط الهجوم (3م)': formatValue((3 / sw) * width, decimals, unit),
+                    [measureKeys['عرض الملعب']]: round(widthInMeters, decimals),
+                    [measureKeys['طول الملعب']]: round(length, decimals),
+                    [measureKeys['خط الهجوم (3م)']]: round((3 / sw) * width, decimals)
                 };
                 break;
             case 'basketball':
                 length = width * 2 - 2;
-                title = 'نتائج قياسات ملعب كرة السلة المصغر';
                 calculations = {
-                    'عرض الملعب': formatValue(width, decimals, unit),
-                    'طول الملعب': formatValue(length, decimals, unit),
-                    'خط الرمية الحرة': formatValue((5.8 / sw) * width, decimals, unit),
-                    'خط الثلاث نقاط': formatValue((6.75 / sw) * width, decimals, unit),
-                    'جانب الثلاث نقاط': formatValue((0.9 / sw) * width, decimals, unit),
+                    [measureKeys['عرض الملعب']]: round(widthInMeters, decimals),
+                    [measureKeys['طول الملعب']]: round(length, decimals),
+                    [measureKeys['خط الرمية الحرة']]: round((5.8 / sw) * width, decimals),
+                    [measureKeys['خط الثلاث نقاط']]: round((6.75 / sw) * width, decimals),
+                    [measureKeys['جانب الثلاث نقاط']]: round((0.9 / sw) * width, decimals)
                 };
                 break;
-            default:
-                return;
         }
-        // Display results
-        displayResults(title, calculations);
-        // Draw diagram (always uses meters internally)
-        drawDiagram({type, width, length, calculations});
 
-        // Apply 3D effect class for all courts
+        displayResults(t.results[type], calculations, unit);
+        drawDiagram({type, width, length});
         diagramContainer.classList.add('perspective-container');
         svgHolder.classList.add('is-3d');
     }
 
-    function displayResults(title, data) {
+    function displayResults(title, data, unit) {
+        const t = translations[currentLang];
         resultTitle.textContent = title;
         resultDetails.innerHTML = '';
-        for (const key in data) {
-            const val = data[key];
+        const unitShort = t.unitShort[unit];
+        
+        for (const [key, val] of Object.entries(data)) {
             const p = document.createElement('p');
             p.className = 'flex justify-between items-center';
-            p.innerHTML = `<span>${key}:</span><span class="font-bold text-white bg-blue-600 px-3 py-1 rounded-md">${val}</span>`;
+            p.innerHTML = `<span>${key}:</span><span class="font-bold text-white bg-blue-600 px-3 py-1 rounded-md">${val} ${unitShort}</span>`;
             resultDetails.appendChild(p);
         }
         resultsSection.classList.remove('hidden');
     }
-    
+
+    // ==================== Diagram ====================
     function drawDiagram({type, width, length}) {
         const scale = 10;
         const w = width * scale;
@@ -311,13 +468,11 @@
             g += `<circle cx="${l/2}" cy="${w/2}" r="${centerRadius}" stroke="white" stroke-width="1.5" fill="none"/>`;
             g += `<circle cx="${l/2}" cy="${w/2}" r="1.5" fill="white"/>`;
             
-            // Areas
             g += `<rect x="0" y="${halfW - penaltyBoxWidth/2}" width="${penaltyBoxDepth}" height="${penaltyBoxWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
             g += `<rect x="0" y="${halfW - goalBoxWidth/2}" width="${goalBoxDepth}" height="${goalBoxWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
             g += `<rect x="${l - penaltyBoxDepth}" y="${halfW - penaltyBoxWidth/2}" width="${penaltyBoxDepth}" height="${penaltyBoxWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
             g += `<rect x="${l - goalBoxDepth}" y="${halfW - goalBoxWidth/2}" width="${goalBoxDepth}" height="${goalBoxWidth}" stroke="white" stroke-width="1.5" fill="none"/>`;
             
-            // Penalty marks and corrected arcs
             g += `<circle cx="${penaltyMarkDist}" cy="${w/2}" r="1.5" fill="white"/>`;
             g += `<circle cx="${l - penaltyMarkDist}" cy="${w/2}" r="1.5" fill="white"/>`;
 
@@ -332,7 +487,6 @@
                 g += `<path d="${rightArcPath}" stroke="white" stroke-width="1.5" fill="none"/>`;
             }
 
-            // Corner arcs
             g += `<path d="M 0 ${cornerArcRadius} A ${cornerArcRadius} ${cornerArcRadius} 0 0 1 ${cornerArcRadius} 0" stroke="white" stroke-width="1.5" fill="none"/>`;
             g += `<path d="M 0 ${w-cornerArcRadius} A ${cornerArcRadius} ${cornerArcRadius} 0 0 0 ${cornerArcRadius} ${w}" stroke="white" stroke-width="1.5" fill="none"/>`;
             g += `<path d="M ${l} ${cornerArcRadius} A ${cornerArcRadius} ${cornerArcRadius} 0 0 0 ${l-cornerArcRadius} 0" stroke="white" stroke-width="1.5" fill="none"/>`;
@@ -368,8 +522,8 @@
             g += `<line x1="${l-seven}" y1="${mid-5}" x2="${l-seven}" y2="${mid+5}" stroke="white" stroke-width="2"/>`;
             g += `<line x1="${four}" y1="${mid-5}" x2="${four}" y2="${mid+5}" stroke="white" stroke-width="2"/>`;
             g += `<line x1="${l-four}" y1="${mid-5}" x2="${l-four}" y2="${mid+5}" stroke="white" stroke-width="2"/>`;
-
             viewBox = `${-borderThickness-goalWidth-5} ${-borderThickness-5} ${l + 2*borderThickness+2*goalWidth+10} ${w + 2*borderThickness+10}`;
+            
         } else if (type === 'volleyball') {
             const freeZone = borderThickness;
             g += `<rect x="${-freeZone}" y="${-freeZone}" width="${l + 2 * freeZone}" height="${w + 2 * freeZone}" fill="#028441" />`;
@@ -381,8 +535,8 @@
             const poleRadius = 5;
             g += `<circle cx="${l/2}" cy="-${poleRadius*2}" r="${poleRadius}" fill="#555"/>`;
             g += `<circle cx="${l/2}" cy="${w + poleRadius*2}" r="${poleRadius}" fill="#555"/>`;
-
             viewBox = `${-freeZone-5} ${-freeZone-poleRadius*2-5} ${l + 2*freeZone+10} ${w + 2*freeZone+poleRadius*4+10}`;
+            
         } else if (type === 'basketball') {
             g += `<rect x="${-borderThickness}" y="${-borderThickness}" width="${l + 2 * borderThickness}" height="${w + 2 * borderThickness}" fill="#A0522D" rx="5" />`;
             g += `<rect x="0" y="0" width="${l}" height="${w}" fill="#b57a4a" stroke="white" stroke-width="1.5"/>`;
@@ -412,14 +566,15 @@
             g += `<line x1="${l}" y1="${threePointSideDist}" x2="${threePointArcStartRightX}" y2="${threePointSideDist}" stroke="white" stroke-width="1.5"/>`;
             g += `<line x1="${l}" y1="${w - threePointSideDist}" x2="${threePointArcStartRightX}" y2="${w - threePointSideDist}" stroke="white" stroke-width="1.5"/>`;
             g += `<path d="M ${threePointArcStartRightX} ${threePointSideDist} A ${threePointRadius} ${threePointRadius} 0 0 0 ${threePointArcStartRightX} ${w - threePointSideDist}" stroke="white" stroke-width="1.5" fill="none"/>`;
-            
             viewBox = `${-borderThickness-5} ${-borderThickness-5} ${l + 2*borderThickness+10} ${w + 2*borderThickness+10}`;
         }
+        
         const svg = `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" style="display:block; max-width:100%; height:auto;">${g}</svg>`;
         svgHolder.innerHTML = svg;
         diagramSection.classList.remove('hidden');
     }
 
+    // ==================== Download Functions ====================
     function downloadSVG(filename) {
         const svgEl = svgHolder.querySelector('svg');
         if (!svgEl) return;
@@ -438,7 +593,7 @@
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
-    
+
     function downloadPNG(filename) {
         const svgEl = svgHolder.querySelector('svg');
         if (!svgEl) return;
@@ -477,11 +632,11 @@
         };
         img.src = url;
     }
-    // Attach download buttons events
-    downloadSvgBtn.addEventListener('click', () => {
+
+    document.getElementById('downloadSvgBtn').addEventListener('click', () => {
         downloadSVG('court-diagram.svg');
     });
-    downloadPngBtn.addEventListener('click', () => {
+    document.getElementById('downloadPngBtn').addEventListener('click', () => {
         downloadPNG('court-diagram.png');
     });
     </script>
