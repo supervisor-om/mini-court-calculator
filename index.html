@@ -10,6 +10,38 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="background-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Court Calculator">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Court Calculator">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512x512.png">
+    <link rel="mask-icon" href="icons/icon-192x192.png" color="#3b82f6">
+    
+    <!-- Social Media / SEO -->
+    <meta name="description" content="حاسبة ذكية لقياسات الملاعب الرياضية المصغرة | Smart mini court dimensions calculator">
+    <meta name="keywords" content="ملاعب, رياضة, تربية, مسقط, عمان, court, sports, calculator">
+    <meta name="author" content="Asaad Al-Khusaibi">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="حاسبة قياسات الملاعب المصغرة | Mini Court Calculator">
+    <meta property="og:description" content="حاسبة ذكية لقياسات الملاعب الرياضية المصغرة">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ar_OM">
+    <meta property="og:locale:alternate" content="en_US">
+    
     <style>
         body {
             font-family: 'Cairo', sans-serif;
@@ -639,6 +671,19 @@
     document.getElementById('downloadPngBtn').addEventListener('click', () => {
         downloadPNG('court-diagram.png');
     });
+
+    // ==================== PWA Service Worker Registration ====================
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then((registration) => {
+                    console.log('SW registered:', registration.scope);
+                })
+                .catch((error) => {
+                    console.error('SW registration failed:', error);
+                });
+        });
+    }
     </script>
 </body>
 </html>

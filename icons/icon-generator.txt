@@ -1,0 +1,13 @@
+# Icon sizes needed for PWA:
+# - 72x72.png
+# - 96x96.png  
+# - 128x128.png
+# - 144x144.png
+# - 152x152.png
+# - 192x192.png
+# - 384x384.png
+# - 512x512.png
+# 
+# You can use an online converter like:
+# https://favicon.io/favicon-generator/
+# Or ImageMagick: convert icon-template.svg icon-192x192.png
