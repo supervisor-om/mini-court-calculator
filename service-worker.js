@@ -1,7 +1,7 @@
 // Service Worker for Mini Court Calculator PWA
 /* يُرفع الرقم عند كل تغيير في الملفات: الجلب من الذاكرة أوّلاً،
    فلولا رفعه لبقي من زار الموقع سابقاً على النسخة القديمة. */
-const CACHE_NAME = 'court-calculator-v8';
+const CACHE_NAME = 'court-calculator-v9';
 const ASSETS = [
   '/mini-court-calculator/',
   '/mini-court-calculator/index.html',
