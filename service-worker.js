@@ -1,7 +1,7 @@
 // Service Worker for Mini Court Calculator PWA
 /* يُرفع الرقم عند كل تغيير في الملفات: الجلب من الذاكرة أوّلاً،
    فلولا رفعه لبقي من زار الموقع سابقاً على النسخة القديمة. */
-const CACHE_NAME = 'court-calculator-v6';
+const CACHE_NAME = 'court-calculator-v7';
 const ASSETS = [
   '/mini-court-calculator/',
   '/mini-court-calculator/index.html',
@@ -40,33 +40,41 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  const sameOrigin = new URL(req.url).origin === self.location.origin;
+
+  /* ملفات التطبيق: الشبكة أوّلاً والذاكرة احتياطاً عند انقطاعها.
+     كانت الذاكرة أوّلاً، فيبقى من زار الموقع على نسخته الأولى ولا
+     يصله تحديث إلّا برفع رقم الذاكرة وتحديثَين متتاليَين. */
+  if (req.mode === 'navigate' || sameOrigin) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res && res.status === 200) {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req).then((c) => {
+          if (c) return c;
+          if (req.mode === 'navigate') return caches.match('/mini-court-calculator/index.html');
+          return Response.error();
+        }))
+    );
+    return;
+  }
+
+  /* مصادر خارجية (خطوط وأنماط): الذاكرة أوّلاً فهي لا تتغيّر */
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        if (response) {
-          return response;
-        }
-        return fetch(event.request)
-          .then((networkResponse) => {
-            // Cache new requests for external resources (CDN)
-            if (event.request.method === 'GET' && 
-                (event.request.url.includes('cdn.tailwindcss.com') ||
-                 event.request.url.includes('fonts.googleapis.com') ||
-                 event.request.url.includes('fonts.gstatic.com'))) {
-              return caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, networkResponse.clone());
-                return networkResponse;
-              });
-            }
-            return networkResponse;
-          });
-      })
-      .catch(() => {
-        // Fallback for offline
-        if (event.request.mode === 'navigate') {
-          return caches.match('/mini-court-calculator/index.html');
-        }
-      })
+    caches.match(req).then((c) => c || fetch(req).then((res) => {
+      if (res && res.status === 200) {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((cc) => cc.put(req, copy));
+      }
+      return res;
+    }))
   );
 });
