@@ -215,6 +215,7 @@
             decimals: "عدد المنازل العشرية:",
             calculateBtn: "احسب القياسات",
             errorMsg: "الرجاء إدخال قيمة عرض صالحة.",
+            errorTooSmall: "العرض صغير جداً لهذا الملعب — لا يبقى له طول.",
             diagram: "رسم تخطيطي",
             printBtn: "طباعة",
             guideTitle: "دليل التخطيط الميداني",
@@ -295,6 +296,7 @@
             decimals: "Decimal Places:",
             calculateBtn: "Calculate Dimensions",
             errorMsg: "Please enter a valid width value.",
+            errorTooSmall: "Width too small for this court — no length remains.",
             diagram: "Diagram",
             printBtn: "Print",
             guideTitle: "Field Marking Guide",
@@ -456,6 +458,7 @@
         const t = translations[currentLang];
         
         if (isNaN(inputValue) || inputValue <= 0) {
+            errorDiv.textContent = t.errorMsg;
             errorDiv.classList.remove('hidden');
             resultsSection.classList.add('hidden');
             diagramSection.classList.add('hidden');
@@ -469,13 +472,20 @@
         let length;
         let calculations = {};
         
-        const standardWidths = {
-            football: 50,
-            handball: 20,
-            volleyball: 9,
-            basketball: 15
+        /* المقاس القانوني لكل ملعب: العرض والطول معاً. */
+        const STANDARD = {
+            football:   { w: 50, l: 100 },
+            handball:   { w: 20, l: 40 },
+            volleyball: { w: 9,  l: 18 },
+            basketball: { w: 15, l: 28 }
         };
-        const sw = standardWidths[type];
+        const std = STANDARD[type];
+        const sw = std.w;
+
+        /* الطول لا يُصغَّر بالتناسب كبقية القياسات: كل متر أقلّ في
+           العرض يقابله مترانِ أقلّ في الطول. فملعب سلة عرضه أربعة
+           عشر طوله ستة وعشرون لا 26.13. */
+        const lengthOf = (w) => std.l - 2 * (std.w - w);
 
         /* عرض خطّ التخطيط ثابت لا يُصغَّر مع الملعب: يُرسم بفرشاة أو
            شريط قياسه معلوم، وتصغيره يُخرج خطاً لا يُرى ولا يُطلى. */
@@ -490,7 +500,7 @@
 
         switch (type) {
             case 'football':
-                length = width * 2;
+                length = lengthOf(width);
                 calculations = {
                     [measureKeys['عرض الملعب']]: out(widthInMeters),
                     [measureKeys['طول الملعب']]: out(length),
@@ -502,7 +512,7 @@
                 };
                 break;
             case 'handball':
-                length = width * 2;
+                length = lengthOf(width);
                 calculations = {
                     [measureKeys['عرض الملعب']]: out(widthInMeters),
                     [measureKeys['طول الملعب']]: out(length),
@@ -513,7 +523,7 @@
                 };
                 break;
             case 'volleyball':
-                length = width * 2;
+                length = lengthOf(width);
                 calculations = {
                     [measureKeys['عرض الملعب']]: out(widthInMeters),
                     [measureKeys['طول الملعب']]: out(length),
@@ -523,12 +533,7 @@
                 };
                 break;
             case 'basketball':
-                /* الطول بالتناسب كبقية القياسات: 28 لكل 15 عرضاً.
-                   كانت الصيغة (width*2 - 2) تطرح ثابتاً من حسابٍ
-                   تناسبي، فتصيب عند المقاس القانوني وحده وتنحرف
-                   عمّا سواه، وتُخرج طولاً صفرياً عند عرض متر وسالباً
-                   دونه — والملاعب المصغّرة هي غرض الحاسبة. */
-                length = (28 / sw) * width;
+                length = lengthOf(width);
                 calculations = {
                     [measureKeys['عرض الملعب']]: out(widthInMeters),
                     [measureKeys['طول الملعب']]: out(length),
@@ -541,6 +546,18 @@
                     [measureKeys['دائرة المنتصف']]: out((1.8 / sw) * width)
                 };
                 break;
+        }
+
+        /* بقاعدة «مترٌ عرضاً مقابل مترين طولاً» يتلاشى الطول عند
+           عرضٍ صغير — ملعب السلة عند مترٍ واحد — فيُرفض بدل رسم
+           ملعبٍ بطول صفرٍ أو سالب. */
+        if (length <= 0) {
+            errorDiv.textContent = t.errorTooSmall;
+            errorDiv.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+            diagramSection.classList.add('hidden');
+            document.getElementById('guide').classList.add('hidden');
+            return;
         }
 
         calculations[measureKeys['عرض خطّ التخطيط']] = out(LINE_WIDTH[type]);
