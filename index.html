@@ -218,7 +218,6 @@
             diagram: "رسم تخطيطي",
             printBtn: "طباعة",
             guideTitle: "دليل التخطيط الميداني",
-            diagonal: "قطر الملعب (للتأكد من الزوايا)",
             guideSteps: [
                 "اختر ضلعاً مستقيماً في الساحة واجعله الخطّ الطويل للملعب، وقِس عليه الطول.",
                 "من طرفَي هذا الخط قِس العرض عمودياً، وضع علامتين.",
@@ -299,7 +298,6 @@
             diagram: "Diagram",
             printBtn: "Print",
             guideTitle: "Field Marking Guide",
-            diagonal: "Court diagonal (to verify square corners)",
             guideSteps: [
                 "Pick a straight edge in the yard as the long side and measure the length along it.",
                 "From both ends measure the width perpendicular, and place two marks.",
@@ -545,9 +543,6 @@
                 break;
         }
 
-        /* القطر: بدونه لا سبيل للتأكد أن زوايا الملعب قائمة عند
-           تخطيطه على الأرض. إن تساوى القطران فالشكل مستطيل. */
-        calculations[t.diagonal] = out(Math.hypot(width, length));
         calculations[measureKeys['عرض خطّ التخطيط']] = out(LINE_WIDTH[type]);
 
         displayResults(t.results[type], calculations, unit);
