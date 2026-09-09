@@ -441,7 +441,12 @@
                 };
                 break;
             case 'basketball':
-                length = width * 2 - 2;
+                /* الطول بالتناسب كبقية القياسات: 28 لكل 15 عرضاً.
+                   كانت الصيغة (width*2 - 2) تطرح ثابتاً من حسابٍ
+                   تناسبي، فتصيب عند المقاس القانوني وحده وتنحرف
+                   عمّا سواه، وتُخرج طولاً صفرياً عند عرض متر وسالباً
+                   دونه — والملاعب المصغّرة هي غرض الحاسبة. */
+                length = (28 / sw) * width;
                 calculations = {
                     [measureKeys['عرض الملعب']]: round(widthInMeters, decimals),
                     [measureKeys['طول الملعب']]: round(length, decimals),
