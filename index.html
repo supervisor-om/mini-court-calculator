@@ -546,7 +546,7 @@
         calculations[measureKeys['عرض خطّ التخطيط']] = out(LINE_WIDTH[type]);
 
         displayResults(t.results[type], calculations, unit);
-        drawDiagram({type, width, length});
+        drawDiagram({type, width, length, calculations, title: t.results[type]});
         buildGuide(widthInMeters, length, decimals, unit);
         diagramContainer.classList.add('perspective-container');
         svgHolder.classList.add('is-3d');
@@ -568,7 +568,50 @@
     }
 
     // ==================== Diagram ====================
-    function drawDiagram({type, width, length}) {
+    /* تُبنى اللوحة بوحدات المشهد نفسه: أحجام الخطّ والهوامش نسبةٌ من
+       عرضه، فتظهر بالمقاس ذاته مهما اختلف حجم الملعب. */
+    function buildLegend(viewBox, calculations, title) {
+        const [vx, vy, vw, vh] = viewBox.trim().split(/\s+/).map(Number);
+        const entries = Object.entries(calculations);
+        const cols = entries.length > 6 ? 2 : 1;
+        const rows = Math.ceil(entries.length / cols);
+
+        const fs   = vw / 46;
+        const lh   = fs * 1.75;
+        const pad  = fs * 1.4;
+        const head = fs * 2.1;
+        const panelH = pad * 2 + head + rows * lh;
+        const top = vy + vh;
+        const rtl = currentLang === "ar";
+
+        let m = `<rect x="${vx}" y="${top}" width="${vw}" height="${panelH}" fill="#f8fafc" stroke="#94a3b8" stroke-width="${fs/14}"/>`;
+        m += `<text x="${rtl ? vx + vw - pad : vx + pad}" y="${top + pad + fs}" ` +
+             `text-anchor="${rtl ? "end" : "start"}" font-family="sans-serif" ` +
+             `font-size="${fs * 1.25}" font-weight="bold" fill="#0f172a">${esc(title)}</text>`;
+        m += `<line x1="${vx + pad}" y1="${top + pad + head * 0.8}" x2="${vx + vw - pad}" ` +
+             `y2="${top + pad + head * 0.8}" stroke="#cbd5e1" stroke-width="${fs/16}"/>`;
+
+        const colW = (vw - pad * 2) / cols;
+        entries.forEach(([label, value], i) => {
+            const col = Math.floor(i / rows);
+            const row = i % rows;
+            /* في العربية يبدأ الترتيب من اليمين */
+            const cx = rtl ? vx + vw - pad - col * colW : vx + pad + col * colW;
+            const y = top + pad + head + row * lh + fs * 0.85;
+            m += `<text x="${cx}" y="${y}" text-anchor="${rtl ? "end" : "start"}" ` +
+                 `font-family="sans-serif" font-size="${fs}" fill="#334155">` +
+                 `${esc(label)}: <tspan font-weight="bold" fill="#0f172a">${esc(String(value))}</tspan></text>`;
+        });
+
+        return { markup: m, viewBox: `${vx} ${vy} ${vw} ${vh + panelH}` };
+    }
+
+    /* الترميز واجب: أسماء القياسات تحوي أقواساً وقد تحوي محارف XML */
+    function esc(v) {
+        return String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function drawDiagram({type, width, length, calculations, title}) {
         const scale = 10;
         const w = width * scale;
         const l = length * scale;
@@ -695,6 +738,14 @@
             viewBox = `${-borderThickness-5} ${-borderThickness-5} ${l + 2*borderThickness+10} ${w + 2*borderThickness+10}`;
         }
         
+        /* لوحة القياسات تُرسم داخل المشهد لا خارجه، فتُحفظ مع الصورة
+           وتُقرأ وحدها في الميدان بلا رجوع إلى الشاشة. */
+        if (calculations) {
+            const legend = buildLegend(viewBox, calculations, title);
+            g += legend.markup;
+            viewBox = legend.viewBox;
+        }
+
         const svg = `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" style="display:block; max-width:100%; height:auto;">${g}</svg>`;
         svgHolder.innerHTML = svg;
         diagramSection.classList.remove('hidden');
